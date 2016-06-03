@@ -2,7 +2,6 @@
 layout: post
 title:  "Source Maps in production"
 date:   2016-06-04 00:00:00 +0300
-categories: jekyll update
 tags: webpack,express,source maps
 ---
 ## What is the article about?
