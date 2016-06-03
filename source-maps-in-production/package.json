@@ -1,0 +1,17 @@
+{
+  "name": "source-maps-in-prod",
+  "version": "1.0.0",
+  "description": "Example project for related article",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "webpack && node serve-index",
+    "serve-source-maps": "node serve-source-maps"
+  },
+  "author": "Igor Ovsiannikov <garek@mail.ru>",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.13.4",
+    "webpack": "^1.13.1"
+  }
+}
