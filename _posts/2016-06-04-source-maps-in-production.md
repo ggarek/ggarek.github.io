@@ -26,7 +26,7 @@ There are several ways to do it ([github.com/mozilla/source-map](https://github.
 ## By example
 
 Now lets try it by example, i will go with the second option in the list above. 
-(*The full source code is on [github](http://TODO).*)
+(*The full source code is on [github](https://github.com/ggarek/ggarek.github.io/tree/code/source-maps-in-production).*)
 
 I tried to make the project as simple as possible for the sake of brevity. Here is the files listing:
 
