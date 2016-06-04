@@ -4,7 +4,12 @@ title:  "Source Maps in production"
 date:   2016-06-04 00:00:00 +0300
 tags: webpack,express,source maps
 ---
-## What is the article about?
+
+<a name="update-04-06-2015"></a>
+**UPDATE 04.06.2015**: *Current source maps format [(version 3)][source maps v3] does not provide information to restore functions and variables names (as they appear in the original code) to be able to explore values of variables while program execution is paused. But luckily, there is a [proposal][proposal post] by [Nick Fitzgerald][Nick`s blog] to enhance the source maps format! [Read it here.][proposal text]*
+
+
+## What is this post about?
 
 How to leverage the power of source maps in production and not expose your original code to everyone on the net.
 
@@ -78,4 +83,9 @@ The idea to use localhost to serve source maps may look frightening, but as for 
 
 p.s.: If you found any, please,  drop me a message.
 
-p.s.2: One more thing to note. The variable names will appear in developer console as they are in runtime, meaning that if your code is minified, then you will get "unreadable" callstack and "messed up" variable names. AFAIK, there is yet no way to map minified variable names to names in original source. Though your code is reconstructed.
+~~p.s.2: One more thing to note. The variable names will appear in developer console as they are in runtime, meaning that if your code is minified, then you will get "unreadable" callstack and "messed up" variable names. AFAIK, there is yet no way to map minified variable names to names in original source.~~ **Look the [UPDATE](#update-04-06-2015) section in the start of the post.**
+
+[proposal text]: https://github.com/fitzgen/source-map-rfc/blob/scopes-and-bindings/proposals/env.md
+[proposal post]: http://fitzgeraldnick.com/2015/07/22/source-map-environment-proposal.html
+[Nick`s blog]: http://fitzgeraldnick.com/
+[source maps v3]: https://docs.google.com/document/d/1U1RGAehQwRypUTovF1KRlpiOFze0b-_2gc6fAH0KY0k/edit?pli=1#
