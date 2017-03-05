@@ -36,6 +36,40 @@ const operations = {
     store => store.collection_ref[0].newValue = 'pink superhero',
     store => store.collection_shallow[0].newValue = 'pink superhero',
   ],
+  'Add new element to collection, then mutate added item': [
+    store => {
+      let item = { test: 'nice pants!' };
+      const size = store.collection_deep.push(item);
+      store.collection_deep[size - 1].test = 'or may be not..';
+    },
+    store => {
+      let item = { test: 'nice pants!' };
+      const size = store.collection_ref.push(item);
+      store.collection_ref[size - 1].test = 'or may be not..';
+    },
+    store => {
+      let item = { test: 'nice pants!' };
+      const size = store.collection_shallow.push(item);
+      store.collection_shallow[size - 1].test = 'or may be not..';
+    }
+  ],
+  'Add new element to collection, then mutate original item': [
+    store => {
+      let item = { test: 'nice pants!' };
+      const size = store.collection_deep.push(item);
+      item.test = 'or may be not..';
+    },
+    store => {
+      let item = { test: 'nice pants!' };
+      const size = store.collection_ref.push(item);
+      item.test = 'or may be not..';
+    },
+    store => {
+      let item = { test: 'nice pants!' };
+      const size = store.collection_shallow.push(item);
+      item.test = 'or may be not..';
+    },
+  ]
 };
 
 // Export case runner
