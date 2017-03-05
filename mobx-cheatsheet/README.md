@@ -4,14 +4,12 @@ A small sandbox with few cases to demonstrate how basic concepts of mobx work.
 
 # Contents
 
-1. observable modifiers
-  1.1. deep, ref, shallow for an array.
-    Operations:
+- observable modifiers
+  - deep, ref, shallow for an array
     - set;
     - mutate array;
     - mutate element;
-  1.2. deep, ref, shallow for an object.
-    Operations:
+  - deep, ref, shallow for an object.
     - set;
     - mutate object;
     - mutate nested object;
