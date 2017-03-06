@@ -1,5 +1,6 @@
 import createRunner from './createToolBelt';
-import { observable, toJS, autorun, action } from 'mobx';
+import * as MOBX from 'mobx';
+const { observable, toJS, autorun, action } = MOBX;
 
 class Store {
   @observable/*.deep*/ item_deep;
@@ -47,6 +48,72 @@ const operations = {
     (store) => store.item_ref2.new_prop = 'crunchy',
     (store) => store.item_shallow.new_prop = 'crunchy',
   ],
+  'Add nested item, then mutate original item': [
+    store => {
+      const deepShit = { batman: 'rules the city' };
+      store.item_deep.deepShit = deepShit;
+      deepShit.batman = 'fights crazy joker';
+    },
+    store => {
+      const deepShit = { batman: 'rules the city' };
+      store.item_ref.deepShit = deepShit;
+      deepShit.batman = 'fights crazy joker';
+    },
+    store => {
+      const deepShit = { batman: 'rules the city' };
+      store.item_ref2.deepShit = deepShit;
+      deepShit.batman = 'fights crazy joker';
+    },
+    store => {
+      const deepShit = { batman: 'rules the city' };
+      store.item_shallow.deepShit = deepShit;
+      deepShit.batman = 'fights crazy joker';
+    },
+  ],
+  'Add nested item, then mutate added item': [
+    store => {
+      const deepShit = { batman: 'rules the city' };
+      store.item_deep.deepShit = deepShit;
+      store.item_deep.deepShit.batman = 'fights crazy joker';
+    },
+    store => {
+      const deepShit = { batman: 'rules the city' };
+      store.item_ref.deepShit = deepShit;
+      store.item_ref.deepShit.batman = 'fights crazy joker';
+    },
+    store => {
+      const deepShit = { batman: 'rules the city' };
+      store.item_ref2.deepShit = deepShit;
+      store.item_ref2.deepShit.batman = 'fights crazy joker';
+    },
+    store => {
+      const deepShit = { batman: 'rules the city' };
+      store.item_shallow.deepShit = deepShit;
+      store.item_shallow.deepShit.batman = 'fights crazy joker';
+    },
+  ],
+  'Add nested observable item, then mutate original item': [
+    store => {
+      const deepShit = observable({ batman: 'rules the city' });
+      store.item_deep.deepShit = deepShit;
+      deepShit.batman = 'fights crazy joker';
+    },
+    store => {
+      const deepShit = observable({ batman: 'rules the city' });
+      store.item_ref.deepShit = deepShit;
+      deepShit.batman = 'fights crazy joker';
+    },
+    store => {
+      const deepShit = observable({ batman: 'rules the city' });
+      store.item_ref2.deepShit = deepShit;
+      deepShit.batman = 'fights crazy joker';
+    },
+    store => {
+      const deepShit = observable({ batman: 'rules the city' });
+      store.item_shallow.deepShit = deepShit;
+      deepShit.batman = 'fights crazy joker';
+    },
+  ]
 };
 
 // Export case runner
