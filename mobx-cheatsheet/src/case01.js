@@ -1,5 +1,6 @@
 import createRunner from './createToolBelt';
-import { observable, toJS, autorun, action } from 'mobx';
+import * as MOBX from 'mobx';
+const { observable, toJS, autorun, action } = MOBX;
 
 class Store {
     @observable/*.deep*/ collection_deep = [];
@@ -69,7 +70,24 @@ const operations = {
       const size = store.collection_shallow.push(item);
       item.test = 'or may be not..';
     },
-  ]
+  ],
+  'Add new observable element to collection, then mutate original item': [
+    store => {
+      let item = observable({ test: 'nice pants!' });
+      const size = store.collection_deep.push(item);
+      item.test = 'or may be not..';
+    },
+    store => {
+      let item = observable({ test: 'nice pants!' });
+      const size = store.collection_ref.push(item);
+      item.test = 'or may be not..';
+    },
+    store => {
+      let item = observable({ test: 'nice pants!' });
+      const size = store.collection_shallow.push(item);
+      item.test = 'or may be not..';
+    },
+  ],
 };
 
 // Export case runner
