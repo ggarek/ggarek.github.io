@@ -1,4 +1,4 @@
-import { observable, toJS, autorun, action } from 'mobx';
+import { observable, toJS, autorun, action, observe } from 'mobx';
 import util from 'util';
 
 export default (name, createStore, operations) => {
@@ -8,7 +8,7 @@ export default (name, createStore, operations) => {
   });
 
   // State dumper
-  const createDumper = store => () => console.log(`[State]\n${util.inspect(toJS(store))}`);
+  const createDumper = store => () => console.log(`[State]\n${util.inspect(toJS(store), { depth: 10 })}`);
 
   // Runner
   const runner = () => {
