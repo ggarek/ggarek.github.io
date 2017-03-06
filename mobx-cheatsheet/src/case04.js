@@ -14,7 +14,18 @@ const createStore = () => {
 
 // Define store mutations (actions)
 const operations = {
-  'Add array, then add an element, then mutate it': [
+  'Add an array, then add an element, then mutate it': [
+    store => {
+      const category = '1';
+      const item = { category, message: 'Duke Nukem is not here'};
+
+      // TODO: should not deep observable Map wrap anything put in it in observable also? (Like array does)
+      store.byCategory.set(category, []);
+      store.byCategory.get(category).push(item);
+      store.byCategory.get(category)[0].message = 'He will come soon';
+    },
+  ],
+  'Add an observable array, then add an element, then mutate it': [
     store => {
       const category = '1';
       const item = { category, message: 'Duke Nukem is not here'};
