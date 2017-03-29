@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Source Maps in production</title>
+  <meta name="description" content="UPDATE 04.06.2015: Current source maps format (version 3) does not provide information to restore functions and variables names (as they appear in the origin...">
+
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="canonical" href="http://yourdomain.com/2016/06/03/source-maps-in-production.html">
+  <link rel="alternate" type="application/rss+xml" title="Igor Ovsiannikov" href="http://yourdomain.com/feed.xml">
+</head>
+
+
+  <body>
+
+    <header class="site-header">
+
+  <div class="wrapper">
+
+    <div>
+      <a class="site-title" href="/">Igor Ovsiannikov</a>
+    </div>
+
+
+    <nav class="site-nav">
+      <a href="#" class="menu-icon">
+        <svg viewBox="0 0 18 15">
+          <path fill="#424242" d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"/>
+          <path fill="#424242" d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484 h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"/>
+          <path fill="#424242" d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"/>
+        </svg>
+      </a>
+
+      <div class="trigger">
+        
+          
+          <a class="page-link" href="/about/">About</a>
+          
+        
+          
+        
+          
+        
+          
+        
+      </div>
+    </nav>
+
+  </div>
+
+</header>
+
+
+    <div class="page-content">
+      <div class="wrapper">
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title" itemprop="name headline">Source Maps in production</h1>
+    <p class="post-meta"><time datetime="2016-06-03T21:00:00+00:00" itemprop="datePublished">Jun 3, 2016</time></p>
+  </header>
+
+  <div class="post-content" itemprop="articleBody">
+    <p><a name="update-04-06-2015"></a>
+<strong>UPDATE 04.06.2015</strong>: <em>Current source maps format <a href="https://docs.google.com/document/d/1U1RGAehQwRypUTovF1KRlpiOFze0b-_2gc6fAH0KY0k/edit?pli=1#">(version 3)</a> does not provide information to restore functions and variables names (as they appear in the original code) to be able to explore values of variables while program execution is paused. But luckily, there is a <a href="http://fitzgeraldnick.com/2015/07/22/source-map-environment-proposal.html">proposal</a> by <a href="http://fitzgeraldnick.com/">Nick Fitzgerald</a> to enhance the source maps format! <a href="https://github.com/fitzgen/source-map-rfc/blob/scopes-and-bindings/proposals/env.md">Read it here.</a></em></p>
+
+<h2 id="what-is-this-post-about">What is this post about?</h2>
+
+<p>How to leverage the power of source maps in production and not expose your original code to everyone on the net.</p>
+
+<h2 id="lets-dive-in">Lets dive in</h2>
+
+<p>One day you may want to debug your site in production, but if your code is minified it wont be a great experience. The way to handle it is to use source maps for your minified code.</p>
+
+<p>But if you use source maps in production, then everybody else on the net may use it too - just open a console and here it is deminified source code. Not necessarily. Lets look how it works.</p>
+
+<p>Source maps can be embedded in the bundle. In this case everybody who has access to the bundle has the access to the source maps too.</p>
+
+<p>But source maps can go as a separate file too. In this case, a browser will try to load it if you open a developer console. And you can tell the browser were it should look for the source maps.</p>
+
+<p>There are several ways to do it (<a href="https://github.com/estools/escodegen/wiki/Source-Map-Usage">github.com/mozilla/source-map</a>):</p>
+
+<ol>
+  <li>Use an HTTP header when serving the JS file (<code class="highlighter-rouge">X-SourceMap: /path/to/file.js.map</code>)</li>
+  <li>Append a comment to the JS file (<code class="highlighter-rouge">//#sourceMappingUrl=/path/to/file.js.map</code>)</li>
+</ol>
+
+<h2 id="by-example">By example</h2>
+
+<p>Now lets try it by example, i will go with the second option in the list above. 
+(<em>The full source code is on <a href="https://github.com/ggarek/ggarek.github.io/tree/code/source-maps-in-production">github</a>.</em>)</p>
+
+<p>I tried to make the project as simple as possible for the sake of brevity. Here is the files listing:</p>
+
+<ul>
+  <li><code class="highlighter-rouge">src/index.js</code> - just print something in console</li>
+  <li><code class="highlighter-rouge">src/index.html</code> - landing page, includes the bundle</li>
+  <li><code class="highlighter-rouge">serve-index.js</code> - express server to serve bundle and index.html</li>
+  <li><code class="highlighter-rouge">serve-source-maps.js</code> - express server to serve source maps</li>
+  <li><code class="highlighter-rouge">webpack.config.js</code>  - webpack config</li>
+</ul>
+
+<p>The main thing happens in the webpack config, here:</p>
+
+<div class="language-js highlighter-rouge"><pre class="highlight"><code><span class="k">new</span> <span class="nx">webpack</span><span class="p">.</span><span class="nx">SourceMapDevToolPlugin</span><span class="p">({</span>
+      <span class="na">filename</span><span class="p">:</span> <span class="s1">'[file].map'</span><span class="p">,</span>
+      <span class="c1">// Change default source map footer </span>
+      <span class="c1">// for the bundle (were to look for source maps)</span>
+      <span class="na">append</span><span class="p">:</span> <span class="err">`\</span><span class="nx">n</span><span class="c1">//# sourceMappingURL=${sourceMapURL}[url]`,</span>
+
+      <span class="c1">// This will alter how reconstructed source files </span>
+      <span class="c1">// will appear in the source tree in developer console</span>
+      <span class="na">moduleFilenameTemplate</span><span class="p">:</span> <span class="err">`</span><span class="nx">$</span><span class="p">{</span><span class="nx">sourceURL</span><span class="p">}[</span><span class="nx">resource</span><span class="o">-</span><span class="nx">path</span><span class="p">]</span><span class="err">`</span><span class="p">,</span>
+      <span class="na">fallbackModuleFilenameTemplate</span><span class="p">:</span> <span class="err">`</span><span class="nx">$</span><span class="p">{</span><span class="nx">sourceURL</span><span class="p">}[</span><span class="nx">resource</span><span class="o">-</span><span class="nx">path</span><span class="p">]?[</span><span class="nx">hash</span><span class="p">]</span><span class="err">`</span><span class="p">,</span>
+    <span class="p">}),</span>
+</code></pre>
+</div>
+
+<p>The <code class="highlighter-rouge">SourceMapDevToolPlugin</code> allows to specify the <code class="highlighter-rouge">sourceMappingURL</code> footer via <code class="highlighter-rouge">append</code> property. Thus we can tell a browser were to look for source maps.</p>
+
+<p>To run the example, navigate to the project folder and run:</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="c"># to install dependencies</span>
+npm i 
+<span class="c"># to build the project and start index server</span>
+npm start
+<span class="c"># to start the source maps server (in the separate term tab)</span>
+npm run serve-source-maps
+</code></pre>
+</div>
+
+<h2 id="conclusion">Conclusion</h2>
+
+<p>One can use <code class="highlighter-rouge">//#sourceMappingUrl</code> to specify the location of source maps as absolute url. Which literally means that the bundle and the source maps can be served separately.</p>
+
+<p>To use source maps securely in production, one can serve it from an origin behind a VPN, or from localhost.
+In the first case, you need to manage a centralised server to serve source maps. In the second case, every developer can have own local server.</p>
+
+<p>The idea to use localhost to serve source maps may look frightening, but as for now i do not see any potential risks in it. I will immediately update the article if i should discover one.</p>
+
+<hr />
+
+<p>p.s.: If you found any, please,  drop me a message.</p>
+
+<p><del>p.s.2: One more thing to note. The variable names will appear in developer console as they are in runtime, meaning that if your code is minified, then you will get “unreadable” callstack and “messed up” variable names. AFAIK, there is yet no way to map minified variable names to names in original source.</del> <strong>Look the <a href="#update-04-06-2015">UPDATE</a> section in the start of the post.</strong></p>
+
+
+  </div>
+
+</article>
+
+      </div>
+    </div>
+
+    <footer class="site-footer">
+
+  <div class="copyright">
+    <span>Igor Ovsiannikov</span> ☘
+    <span>2016-2017</span> ☌
+    <span>Built with <a href="https://jekyllrb.com">Jekyll</a></span> ☌
+    <span>Hosted on <a href="https://github.com">github</a></span>
+  </div>
+  <div class="social">
+  
+
+
+
+<a href="https://github.com/ggarek"><i class="svg-icon github"></i></a>
+
+<a href="https://www.linkedin.com/in/igor-ovsyannikov-0980b970"><i class="svg-icon linkedin"></i></a>
+
+
+
+
+
+
+  </div>
+
+</footer>
+
+
+  </body>
+
+</html>
