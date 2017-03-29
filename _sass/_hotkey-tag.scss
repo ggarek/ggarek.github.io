@@ -1,0 +1,27 @@
+.hotkey-tag {
+  padding: 5px;
+  border: 1px solid #c9c9c9;
+  border-radius: 5px;
+  font-size: 12px;
+  vertical-align: middle;
+  text-align: center;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  line-height: 1px;
+  margin: 0 5px;
+  position: relative;
+  top: -3px;
+  white-space: nowrap;
+
+  &::after {
+    content: '';
+    position: absolute;
+    border: 1px solid #c9c9c9;
+    left: -1px;
+    top: 17px;
+    right: -1px;
+    bottom: -3px;
+    border-radius: 0px 0px 5px 5px;
+    border-width: 0px 1px 1px 1px;
+  }
+}
